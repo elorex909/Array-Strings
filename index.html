@@ -37,9 +37,10 @@ body {
   justify-content: center;
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
+  overflow: hidden; /* Prevent body scroll, handle inside slides */
 }
 
-/* Presentation Viewer */
+/* Presentation Viewer - Desktop Default */
 #presentation-viewer {
   width: 90vw;
   max-width: 1366px;
@@ -128,6 +129,7 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
   animation: fadeIn 0.4s ease-out forwards;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-bottom: 20px;
 }
 
 @keyframes fadeIn {
@@ -196,7 +198,7 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
 }
 .io-label { color: var(--accent-secondary); font-weight: bold; font-size: 12px; display: block; margin-bottom: 5px; }
 
-/* Profile Images */
+/* Profile Images & Text */
 .rounded-image-layout .image-wrapper {
   border-radius: 50%; flex-shrink: 0; height: 280px; width: 280px; margin: 0 auto;
   border: 4px solid var(--accent-secondary); background-color: var(--bg-main);
@@ -205,8 +207,9 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
 }
 .rounded-image-layout .image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 .rounded-image-layout.two-column { align-items: center; }
-.rounded-image-layout li { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 18px; }
-.rounded-image-layout li i { color: var(--accent-primary); font-size: 20px; width: 25px; text-align: center; }
+.rounded-image-layout li { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 12px; font-size: 18px; }
+.rounded-image-layout li i { color: var(--accent-primary); font-size: 20px; width: 25px; text-align: center; margin-top: 3px; }
+.team-desc { font-size: 18px; margin-bottom: 20px; color: var(--text-main); opacity: 0.9; }
 
 /* Questions Time Layout */
 .questions-intro-layout {
@@ -239,35 +242,108 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
 #view-toggle-controls button { background-color: var(--bg-slide); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; transition: all 0.2s ease; }
 #view-toggle-controls button.active { background-color: var(--accent-secondary); color: #111; border-color: var(--accent-secondary); font-weight: 700; }
 
-/* Mobile Responsive */
+/* =========================================
+   MOBILE RESPONSIVE RULES (High Priority)
+   ========================================= */
 @media (max-width: 768px) {
-    body { padding: 0; background-color: var(--bg-slide); }
-    #presentation-viewer { width: 100vw; height: 85vh; border: none; border-radius: 0; box-shadow: none; }
-    .slide-container { padding: 15px; overflow-y: auto; }
-    .slide-container .content-area { display: block; overflow: visible; padding-bottom: 60px;}
+    body { padding: 0; background-color: var(--bg-main); overflow-y: hidden; }
     
-    .slide-container h1 { font-size: 32px; }
-    .slide-container .slide-title { font-size: 22px; margin-bottom: 15px; text-align: center; }
-    .slide-container h3 { font-size: 18px; }
-    p, li { font-size: 15px; }
+    #presentation-viewer { 
+        width: 100vw; 
+        height: 100vh; /* Full viewport height */
+        max-height: none;
+        border: none; 
+        border-radius: 0; 
+        box-shadow: none;
+        margin: 0;
+    }
     
-    .two-column { grid-template-columns: 1fr; gap: 15px; display: flex; flex-direction: column; }
-    .two-column.tiled > div { padding: 15px; width: 100%; }
+    .slide-container { 
+        padding: 20px 15px 80px 15px; /* Bottom padding space for nav */
+        overflow-y: auto; 
+        display: block; /* Ensure block display for vertical scrolling */
+    }
     
-    .code-block { font-size: 12px; }
-    .code-block pre { padding: 10px; }
-    .rounded-image-layout .image-wrapper { width: 140px; height: 140px; margin-bottom: 15px; }
-    .questions-intro-layout h2 { font-size: 40px; }
-    .questions-intro-layout i { font-size: 50px; }
+    /* Ensure content stacks vertically */
+    .slide-container.active {
+        display: block;
+    }
+
+    .slide-container .content-area { 
+        display: block; 
+        width: 100%;
+        height: auto;
+        overflow: visible;
+    }
     
-    #nav-controls { position: fixed; bottom: 0; left: 0; background: rgba(30, 30, 46, 0.95); backdrop-filter: blur(10px); margin: 0; padding: 10px; z-index: 10; border-top: 1px solid var(--border-color); }
-    #nav-controls button { padding: 8px 16px; font-size: 14px; margin: 0 5px; }
+    /* Font Adjustments */
+    .slide-container h1 { font-size: 36px; margin-top: 40px; }
+    .slide-container .slide-title { font-size: 28px; margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(203, 166, 247, 0.2); }
+    .slide-container h3 { font-size: 22px; margin-top: 15px; }
+    .slide-container p, .slide-container li, .team-desc { font-size: 16px; line-height: 1.5; }
+    
+    /* Column Stacking */
+    .two-column { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 25px; 
+        height: auto;
+    }
+    
+    .two-column.tiled > div { 
+        width: 100%; 
+        padding: 15px; 
+        min-height: auto;
+    }
+    
+    /* Code Blocks */
+    .code-block { font-size: 13px; max-width: 100%; overflow-x: auto; }
+    .code-block pre { padding: 12px; }
+
+    /* Team Images */
+    .rounded-image-layout .image-wrapper { width: 180px; height: 180px; margin-bottom: 20px; }
+    .rounded-image-layout.two-column { flex-direction: column; text-align: center; }
+    .rounded-image-layout li { justify-content: flex-start; text-align: left; }
+    
+    /* Section Titles */
+    .section-title-layout { margin-top: 30%; }
+    .section-title-layout h2 { font-size: 42px; }
+    .questions-intro-layout { margin-top: 20%; }
+    .questions-intro-layout h2 { font-size: 48px; }
+    .questions-intro-layout i { font-size: 70px; }
+    
+    /* Navigation Bar (Fixed Bottom) */
+    #nav-controls { 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%;
+        background: rgba(30, 30, 46, 0.95); 
+        backdrop-filter: blur(10px); 
+        margin: 0; 
+        padding: 15px; 
+        z-index: 100; 
+        border-top: 1px solid var(--border-color);
+        justify-content: space-between;
+    }
+    #nav-controls button { 
+        padding: 10px 15px; 
+        font-size: 14px; 
+        margin: 0; 
+        flex: 1;
+        max-width: 100px;
+    }
+    #slide-counter { font-size: 14px; width: auto; }
+    
+    /* Hide Preview Toggle on Real Mobile */
     #view-toggle-controls { display: none; }
 }
 
-body.mobile-view { justify-content: flex-start; padding-top: 10px; }
+/* Explicit Mobile View Class (For Desktop Testing) */
+body.mobile-view { justify-content: flex-start; padding-top: 10px; overflow-y: auto; }
 body.mobile-view #presentation-viewer { width: 375px; height: 667px; border: 4px solid #333; border-radius: 30px; }
 body.mobile-view .slide-container { padding: 15px; display: block; overflow-y: auto; }
+body.mobile-view .two-column { display: flex; flex-direction: column; gap: 15px; }
 body.mobile-view #nav-controls { width: 375px; }
 
     </style>
@@ -286,7 +362,7 @@ body.mobile-view #nav-controls { width: 375px; }
       <div class="content-area">
         <div class="title-layout">
             <h1>Arrays & Strings</h1>
-            <p class="subtitle">Detailed Guide & Built-in Functions</p>
+            <p class="subtitle">Comprehensive Guide for ICPC</p>
             <p style="margin-top: 20px; color: #aaa;">Thebes ICPC Community</p>
         </div>
       </div>
@@ -299,9 +375,11 @@ body.mobile-view #nav-controls { width: 375px; }
                 <div><div class="image-wrapper"><img src="y.jpg" alt="Youssef"></div></div>
                 <div>
                     <h3>Youssef Elarabi</h3>
+                    <p class="team-desc">As the Community Manager, Youssef orchestrates all our contests and events. He ensures the training roadmap is aligned with ICPC standards and creates a supportive environment for every member to grow.</p>
                     <ul style="list-style: none; padding: 0;">
-                        <li><i class="fa-solid fa-star"></i> Manager</li>
-                        <li><i class="fa-solid fa-user-graduate"></i> 3rd Year, CS</li>
+                        <li><i class="fa-solid fa-star"></i> Manager & Leader</li>
+                        <li><i class="fa-solid fa-calendar-check"></i> Event Coordinator</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 3rd Year, Computer Science</li>
                     </ul>
                 </div>
             </div>
@@ -315,9 +393,11 @@ body.mobile-view #nav-controls { width: 375px; }
                 <div><div class="image-wrapper"><img src="5778535814672354258_121.jpg" alt="Ahmed"></div></div>
                 <div>
                     <h3>Ahmed Hassan</h3>
+                    <p class="team-desc">Ahmed specializes in breaking down complex C++ concepts into simple, digestible lessons. His focus is on building a strong foundation in syntax and logical thinking to prepare you for competitive programming.</p>
                     <ul style="list-style: none; padding: 0;">
-                        <li><i class="fa-solid fa-chalkboard-user"></i> Instructor</li>
-                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, CS</li>
+                        <li><i class="fa-solid fa-chalkboard-user"></i> Technical Instructor</li>
+                        <li><i class="fa-solid fa-code"></i> C++ Specialist</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, Computer Science</li>
                     </ul>
                 </div>
             </div>
@@ -331,9 +411,11 @@ body.mobile-view #nav-controls { width: 375px; }
                 <div><div class="image-wrapper"><img src="IMG_20251018_1238301.jpg" alt="Ziad"></div></div>
                 <div>
                     <h3>Ziad Ebrahim</h3>
+                    <p class="team-desc">Ziad acts as your personal guide. He reviews code submissions, helps debug tricky compilation errors, and provides one-on-one advice to help you move from solving easy problems to tackling medium ones.</p>
                     <ul style="list-style: none; padding: 0;">
-                        <li><i class="fa-solid fa-hands-helping"></i> Mentor</li>
-                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, CS</li>
+                        <li><i class="fa-solid fa-hands-helping"></i> Mentor & Code Reviewer</li>
+                        <li><i class="fa-solid fa-bug"></i> Debugging Expert</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, Computer Science</li>
                     </ul>
                 </div>
             </div>
