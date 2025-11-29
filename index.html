@@ -37,10 +37,10 @@ body {
   justify-content: center;
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
-  overflow: hidden; /* Prevent body scroll, handle inside slides */
+  overflow: hidden; 
 }
 
-/* Presentation Viewer - Desktop Default */
+/* Presentation Viewer */
 #presentation-viewer {
   width: 90vw;
   max-width: 1366px;
@@ -224,6 +224,109 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
 .highlight-numbers-layout .number { color: var(--accent-success); font-size: 100px; font-weight: 800; line-height: 1; word-break: break-all; }
 .highlight-numbers-layout .number-label { font-size: 22px; color: var(--text-main); opacity: 0.8; }
 
+/* --- NEW: Interactive End Slide Styles --- */
+.end-slide-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    height: 100%;
+    align-items: center;
+}
+.end-slide-left h2 {
+    font-size: 60px;
+    color: var(--accent-success);
+    margin-bottom: 10px;
+}
+.next-steps-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 30px;
+}
+.next-steps-list li {
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-secondary);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+.next-steps-list li:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.1);
+}
+.next-steps-list li i {
+    color: var(--accent-secondary);
+    font-size: 24px;
+}
+
+.end-slide-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 30, 46, 0.6);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+.qr-placeholder {
+    width: 200px;
+    height: 200px;
+    background: white;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+.qr-placeholder i {
+    font-size: 100px;
+    color: #333;
+}
+.action-btn {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.btn-whatsapp {
+    background: #25D366;
+    color: white;
+}
+.btn-whatsapp:hover { background: #128C7E; transform: scale(1.02); }
+.btn-contest {
+    background: var(--accent-primary);
+    color: #111;
+}
+.btn-contest:hover { background: #b48ef0; transform: scale(1.02); }
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+.social-icons i {
+    font-size: 28px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.social-icons i:hover { color: var(--accent-secondary); }
+
 /* Controls */
 #nav-controls {
     display: flex; align-items: center; justify-content: center; width: 100%; max-width: 1280px; margin-top: 20px;
@@ -261,20 +364,12 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
     .slide-container { 
         padding: 20px 15px 80px 15px; /* Bottom padding space for nav */
         overflow-y: auto; 
-        display: block; /* Ensure block display for vertical scrolling */
+        display: block; 
     }
     
     /* Ensure content stacks vertically */
-    .slide-container.active {
-        display: block;
-    }
-
-    .slide-container .content-area { 
-        display: block; 
-        width: 100%;
-        height: auto;
-        overflow: visible;
-    }
+    .slide-container.active { display: block; }
+    .slide-container .content-area { display: block; width: 100%; height: auto; overflow: visible; }
     
     /* Font Adjustments */
     .slide-container h1 { font-size: 36px; margin-top: 40px; }
@@ -283,18 +378,13 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
     .slide-container p, .slide-container li, .team-desc { font-size: 16px; line-height: 1.5; }
     
     /* Column Stacking */
-    .two-column { 
-        display: flex; 
-        flex-direction: column; 
-        gap: 25px; 
-        height: auto;
-    }
+    .two-column { display: flex; flex-direction: column; gap: 25px; height: auto; }
+    .two-column.tiled > div { width: 100%; padding: 15px; min-height: auto; }
     
-    .two-column.tiled > div { 
-        width: 100%; 
-        padding: 15px; 
-        min-height: auto;
-    }
+    /* End Slide Mobile */
+    .end-slide-layout { display: flex; flex-direction: column; gap: 30px; }
+    .end-slide-right { width: 100%; }
+    .end-slide-left h2 { font-size: 40px; text-align: center; }
     
     /* Code Blocks */
     .code-block { font-size: 13px; max-width: 100%; overflow-x: auto; }
@@ -314,36 +404,23 @@ p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
     
     /* Navigation Bar (Fixed Bottom) */
     #nav-controls { 
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        width: 100%;
-        background: rgba(30, 30, 46, 0.95); 
-        backdrop-filter: blur(10px); 
-        margin: 0; 
-        padding: 15px; 
-        z-index: 100; 
-        border-top: 1px solid var(--border-color);
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: rgba(30, 30, 46, 0.95); backdrop-filter: blur(10px); 
+        margin: 0; padding: 15px; z-index: 100; border-top: 1px solid var(--border-color);
         justify-content: space-between;
     }
-    #nav-controls button { 
-        padding: 10px 15px; 
-        font-size: 14px; 
-        margin: 0; 
-        flex: 1;
-        max-width: 100px;
-    }
+    #nav-controls button { padding: 10px 15px; font-size: 14px; margin: 0; flex: 1; max-width: 100px; }
     #slide-counter { font-size: 14px; width: auto; }
     
     /* Hide Preview Toggle on Real Mobile */
     #view-toggle-controls { display: none; }
 }
 
-/* Explicit Mobile View Class (For Desktop Testing) */
 body.mobile-view { justify-content: flex-start; padding-top: 10px; overflow-y: auto; }
 body.mobile-view #presentation-viewer { width: 375px; height: 667px; border: 4px solid #333; border-radius: 30px; }
 body.mobile-view .slide-container { padding: 15px; display: block; overflow-y: auto; }
 body.mobile-view .two-column { display: flex; flex-direction: column; gap: 15px; }
+body.mobile-view .end-slide-layout { display: flex; flex-direction: column; }
 body.mobile-view #nav-controls { width: 375px; }
 
     </style>
@@ -961,11 +1038,31 @@ getline(cin, name);</pre></div>
 
     <div class="slide-container" id="slide34">
       <div class="content-area">
-        <div class="title-layout">
-            <h2>Good Luck!</h2>
-            <p class="subtitle">See you in the contest</p>
-            <div style="margin-top: 30px;">
-                <p>Thebes ICPC Community</p>
+        <div class="end-slide-layout">
+            <div class="end-slide-left">
+                <h2>What's Next?</h2>
+                <p>Congratulations on finishing the session!</p>
+                <ul class="next-steps-list">
+                    <li><i class="fa-solid fa-file-code"></i> Solve the Level 1 Sheet</li>
+                    <li><i class="fa-solid fa-trophy"></i> Register for Weekly Contest</li>
+                    <li><i class="fa-solid fa-people-group"></i> Ask Mentors for Help</li>
+                </ul>
+            </div>
+            <div class="end-slide-right">
+                <div class="qr-placeholder">
+                    <i class="fa-solid fa-qrcode"></i>
+                </div>
+                <button class="action-btn btn-whatsapp" onclick="window.open('https://whatsapp.com', '_blank')">
+                    <i class="fa-brands fa-whatsapp"></i> Join WhatsApp Group
+                </button>
+                <button class="action-btn btn-contest" onclick="alert('Contest Registration Coming Soon!')">
+                    <i class="fa-solid fa-flag-checkered"></i> Register for Contest
+                </button>
+                <div class="social-icons">
+                    <i class="fa-brands fa-facebook"></i>
+                    <i class="fa-brands fa-linkedin"></i>
+                    <i class="fa-brands fa-github"></i>
+                </div>
             </div>
         </div>
       </div>
