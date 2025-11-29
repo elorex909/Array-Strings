@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Arrays & Strings - Thebes ICPC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* THEME: MODERN DARK (Catppuccin/Dracula inspired) */
+:root {
+    --bg-main: #1e1e2e;      
+    --bg-slide: #252536;     
+    --text-main: #cdd6f4;    
+    --text-heading: #ffffff; 
+    --accent-primary: #cba6f7; 
+    --accent-secondary: #89b4fa; 
+    --accent-success: #a6e3a1; 
+    --accent-warning: #f9e2af; 
+    --accent-danger: #f38ba8;  
+    --code-bg: #11111b;      
+    --border-color: #313244;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background-color: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 0;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+}
+
+/* Presentation Viewer */
+#presentation-viewer {
+  width: 90vw;
+  max-width: 1366px;
+  height: calc(90vw * 9 / 16);
+  max-height: 768px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.slide-container {
+  align-items: center;
+  background-color: var(--bg-slide);
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: 60px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.slide-container.active { display: flex; z-index: 2; }
+
+/* Background Shapes */
+.slide-container::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(203, 166, 247, 0.05) 0%, rgba(30, 30, 46, 0) 70%);
+  top: -200px;
+  right: -200px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.slide-container > * { position: relative; z-index: 1; }
+
+/* Typography */
+h1, h2, h3 { color: var(--text-heading); font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+p, li, .subtitle { color: var(--text-main); line-height: 1.6; }
+
+.slide-container h1 {
+  font-size: 64px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.slide-container .slide-title {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: left;
+  width: 100%;
+  color: var(--accent-primary);
+  border-bottom: 2px solid rgba(203, 166, 247, 0.2);
+  padding-bottom: 15px;
+}
+
+.slide-container h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--accent-secondary);
+}
+
+.slide-container .subtitle { font-size: 24px; font-weight: 400; color: var(--accent-secondary); }
+
+.slide-container.active .content-area {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  width: 100%;
+  animation: fadeIn 0.4s ease-out forwards;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Layouts */
+.title-layout { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+.section-title-layout { text-align: center; width: 100%; }
+.section-title-layout h2 { font-size: 80px; color: var(--text-heading); }
+.section-title-layout p { font-size: 28px; color: var(--accent-primary); margin-bottom: 20px; }
+.section-title-layout hr { height: 4px; width: 100px; background-color: var(--accent-secondary); border: none; border-radius: 2px; margin: 30px auto; }
+
+.two-column { align-items: flex-start; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 40px; width: 100%; height: 100%; }
+
+.two-column.tiled > div {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+}
+
+/* Code Blocks */
+.code-block {
+  background-color: var(--code-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--text-main);
+  overflow: auto;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+}
+
+.code-block pre { margin: 0; padding: 20px; white-space: pre-wrap; line-height: 1.5; }
+.code-block .comment { color: #6c7086; font-style: italic; }
+.code-block .keyword { color: #cba6f7; font-weight: bold; }
+.code-block .function { color: #89b4fa; }
+.code-block .string { color: #a6e3a1; }
+.code-block .number { color: #fab387; }
+.code-block .library { color: #f9e2af; }
+
+/* Problem Statement Style */
+.problem-box {
+    background-color: rgba(20, 20, 30, 0.5);
+    border-left: 4px solid var(--accent-warning);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0 8px 8px 0;
+}
+.problem-box h4 { margin: 0 0 10px 0; color: var(--accent-warning); font-size: 18px; }
+.io-box {
+    font-family: 'JetBrains Mono', monospace;
+    background: #000;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
+    font-size: 14px;
+}
+.io-label { color: var(--accent-secondary); font-weight: bold; font-size: 12px; display: block; margin-bottom: 5px; }
+
+/* Profile Images */
+.rounded-image-layout .image-wrapper {
+  border-radius: 50%; flex-shrink: 0; height: 280px; width: 280px; margin: 0 auto;
+  border: 4px solid var(--accent-secondary); background-color: var(--bg-main);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.rounded-image-layout .image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+.rounded-image-layout.two-column { align-items: center; }
+.rounded-image-layout li { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; font-size: 18px; }
+.rounded-image-layout li i { color: var(--accent-primary); font-size: 20px; width: 25px; text-align: center; }
+
+/* Questions Time Layout */
+.questions-intro-layout {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%;
+}
+.questions-intro-layout i { font-size: 100px; color: var(--accent-warning); margin-bottom: 30px; animation: bounce 2s infinite; }
+.questions-intro-layout h2 { font-size: 80px; background: linear-gradient(to right, var(--accent-warning), var(--accent-danger)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
+
+/* Answer Layout */
+.highlight-numbers-layout > div:first-child { text-align: center; background: transparent !important; border: none !important; }
+.highlight-numbers-layout .number { color: var(--accent-success); font-size: 100px; font-weight: 800; line-height: 1; word-break: break-all; }
+.highlight-numbers-layout .number-label { font-size: 22px; color: var(--text-main); opacity: 0.8; }
+
+/* Controls */
+#nav-controls {
+    display: flex; align-items: center; justify-content: center; width: 100%; max-width: 1280px; margin-top: 20px;
+}
+#nav-controls button {
+    background-color: var(--accent-primary); color: #111; border: none; border-radius: 8px; padding: 12px 24px; font-size: 16px; font-weight: 700;
+    cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease; margin: 0 15px;
+}
+#nav-controls button:hover { opacity: 0.9; transform: translateY(-2px); }
+#nav-controls button:disabled { background-color: var(--bg-slide); color: #555; cursor: not-allowed; transform: none; }
+#slide-counter { color: var(--accent-secondary); font-size: 16px; font-weight: 600; width: 120px; text-align: center; font-family: 'JetBrains Mono', monospace; }
+
+/* View Toggle */
+#view-toggle-controls { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+#view-toggle-controls span { font-size: 14px; color: var(--text-main); opacity: 0.7; }
+#view-toggle-controls button { background-color: var(--bg-slide); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; transition: all 0.2s ease; }
+#view-toggle-controls button.active { background-color: var(--accent-secondary); color: #111; border-color: var(--accent-secondary); font-weight: 700; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    body { padding: 0; background-color: var(--bg-slide); }
+    #presentation-viewer { width: 100vw; height: 85vh; border: none; border-radius: 0; box-shadow: none; }
+    .slide-container { padding: 15px; overflow-y: auto; }
+    .slide-container .content-area { display: block; overflow: visible; padding-bottom: 60px;}
+    
+    .slide-container h1 { font-size: 32px; }
+    .slide-container .slide-title { font-size: 22px; margin-bottom: 15px; text-align: center; }
+    .slide-container h3 { font-size: 18px; }
+    p, li { font-size: 15px; }
+    
+    .two-column { grid-template-columns: 1fr; gap: 15px; display: flex; flex-direction: column; }
+    .two-column.tiled > div { padding: 15px; width: 100%; }
+    
+    .code-block { font-size: 12px; }
+    .code-block pre { padding: 10px; }
+    .rounded-image-layout .image-wrapper { width: 140px; height: 140px; margin-bottom: 15px; }
+    .questions-intro-layout h2 { font-size: 40px; }
+    .questions-intro-layout i { font-size: 50px; }
+    
+    #nav-controls { position: fixed; bottom: 0; left: 0; background: rgba(30, 30, 46, 0.95); backdrop-filter: blur(10px); margin: 0; padding: 10px; z-index: 10; border-top: 1px solid var(--border-color); }
+    #nav-controls button { padding: 8px 16px; font-size: 14px; margin: 0 5px; }
+    #view-toggle-controls { display: none; }
+}
+
+body.mobile-view { justify-content: flex-start; padding-top: 10px; }
+body.mobile-view #presentation-viewer { width: 375px; height: 667px; border: 4px solid #333; border-radius: 30px; }
+body.mobile-view .slide-container { padding: 15px; display: block; overflow-y: auto; }
+body.mobile-view #nav-controls { width: 375px; }
+
+    </style>
+</head>
+<body>
+
+<div id="view-toggle-controls">
+    <span>Preview Mode:</span>
+    <button id="desktop-view-btn" class="active"><i class="fa-solid fa-desktop"></i> Desktop</button>
+    <button id="mobile-view-btn"><i class="fa-solid fa-mobile-screen"></i> Mobile</button>
+</div>
+
+<div id="presentation-viewer">
+
+    <div class="slide-container active" id="slide1">
+      <div class="content-area">
+        <div class="title-layout">
+            <h1>Arrays & Strings</h1>
+            <p class="subtitle">Detailed Guide & Built-in Functions</p>
+            <p style="margin-top: 20px; color: #aaa;">Thebes ICPC Community</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="slide-container" id="slide2">
+        <h2 class="slide-title">Meet the Manager</h2>
+        <div class="content-area">
+            <div class="two-column rounded-image-layout">
+                <div><div class="image-wrapper"><img src="y.jpg" alt="Youssef"></div></div>
+                <div>
+                    <h3>Youssef Elarabi</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><i class="fa-solid fa-star"></i> Manager</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 3rd Year, CS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Meet the Instructor</h2>
+        <div class="content-area">
+            <div class="two-column rounded-image-layout">
+                <div><div class="image-wrapper"><img src="5778535814672354258_121.jpg" alt="Ahmed"></div></div>
+                <div>
+                    <h3>Ahmed Hassan</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><i class="fa-solid fa-chalkboard-user"></i> Instructor</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, CS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Meet the Mentor</h2>
+        <div class="content-area">
+            <div class="two-column rounded-image-layout">
+                <div><div class="image-wrapper"><img src="IMG_20251018_1238301.jpg" alt="Ziad"></div></div>
+                <div>
+                    <h3>Ziad Ebrahim</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><i class="fa-solid fa-hands-helping"></i> Mentor</li>
+                        <li><i class="fa-solid fa-user-graduate"></i> 2nd Year, CS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide5">
+      <div class="content-area">
+        <div class="section-title-layout">
+            <p>Collections of Data</p>
+            <h2>C++ Arrays</h2>
+            <hr>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Arrays Explained</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>The Concept</h3>
+                    <p>An array is a fixed-size collection of elements of the <strong>same type</strong> stored in <strong>contiguous memory</strong>.</p>
+                    <p>Think of it as a row of boxes, each with an index starting from <strong>0</strong>.</p>
+                </div>
+                <div class="code-block"><pre><span class="keyword">int</span> arr[<span class="number">5</span>] = {<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>};
+
+<span class="comment">// Accessing</span>
+cout &lt;&lt; arr[<span class="number">0</span>]; <span class="comment">// 10</span>
+cout &lt;&lt; arr[<span class="number">4</span>]; <span class="comment">// 50</span>
+
+<span class="comment">// Warning: arr[5] is out of bounds!</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Garbage Values</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Initialization Rules</h3>
+                    <p><strong>Global Arrays:</strong> Automatically initialized to 0.</p>
+                    <p><strong>Local Arrays:</strong> Contain "Garbage Values" (random numbers) unless initialized manually.</p>
+                </div>
+                <div class="code-block"><pre><span class="keyword">int</span> globalArr[<span class="number">5</span>]; <span class="comment">// All 0</span>
+
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> localArr[<span class="number">5</span>]; 
+    <span class="comment">// Contains random junk!</span>
+    
+    <span class="keyword">int</span> cleanArr[<span class="number">5</span>] = {<span class="number">0</span>}; 
+    <span class="comment">// Force initialize to 0</span>
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Sorting & Searching</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>#include &lt;algorithm&gt;</h3>
+                    <p>C++ provides powerful global functions for arrays:</p>
+                    <ul>
+                        <li><code>sort(arr, arr+n)</code>: Sorts ascending.</li>
+                        <li><code>reverse(arr, arr+n)</code>: Flips order.</li>
+                        <li><code>*max_element(arr, arr+n)</code>: Finds max.</li>
+                        <li><code>count(arr, arr+n, val)</code>: Counts occurrences.</li>
+                    </ul>
+                </div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> a[<span class="number">5</span>] = {<span class="number">5</span>, <span class="number">1</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">8</span>};
+
+sort(a, a+<span class="number">5</span>); 
+<span class="comment">// a is {1, 2, 4, 5, 8}</span>
+
+cout &lt;&lt; *max_element(a, a+<span class="number">5</span>);
+<span class="comment">// Output: 8</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Descending Sort</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Sorting Backwards</h3>
+                    <p>By default, <code>sort()</code> is ascending (Low to High).</p>
+                    <p>To sort descending (High to Low), add a third argument: <code>greater&lt;type&gt;()</code>.</p>
+                </div>
+                <div class="code-block"><pre><span class="keyword">int</span> arr[] = {<span class="number">1</span>, <span class="number">5</span>, <span class="number">3</span>};
+
+<span class="comment">// Sort Descending</span>
+sort(arr, arr+<span class="number">3</span>, greater&lt;<span class="keyword">int</span>&gt;());
+
+<span class="comment">// arr is now {5, 3, 1}</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide10">
+      <div class="content-area">
+        <div class="section-title-layout">
+            <p>Working with Text</p>
+            <h2>C++ Strings</h2>
+            <hr>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Strings Explained</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Dynamic Text</h3>
+                    <p><code>std::string</code> is a dynamic array of characters. It handles memory automatically and allows easy concatenation.</p>
+                </div>
+                <div class="code-block"><pre><span class="library">#include &lt;string&gt;</span>
+
+<span class="keyword">string</span> name = <span class="string">"Ahmed"</span>;
+<span class="keyword">string</span> msg = <span class="string">"Hello "</span> + name;
+
+cout &lt;&lt; msg.size(); <span class="comment">// Length</span>
+cout &lt;&lt; msg[<span class="number">0</span>];     <span class="comment">// 'H'</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">String Operations</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Class Methods</h3>
+                    <ul>
+                        <li><code>.push_back('c')</code>: Add char to end.</li>
+                        <li><code>.pop_back()</code>: Remove last char.</li>
+                        <li><code>.find("sub")</code>: Find index of substring.</li>
+                        <li><code>.substr(idx, len)</code>: Extract part of string.</li>
+                    </ul>
+                </div>
+                <div class="code-block"><pre><span class="keyword">string</span> s = <span class="string">"Code"</span>;
+s.push_back(<span class="string">'s'</span>); <span class="comment">// "Codes"</span>
+
+<span class="keyword">int</span> idx = s.find(<span class="string">"de"</span>); <span class="comment">// 2</span>
+
+<span class="keyword">string</span> sub = s.substr(<span class="number">0</span>, <span class="number">2</span>); 
+<span class="comment">// "Co"</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Iterators: begin() & end()</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Sorting Strings</h3>
+                    <p>To use <code>sort()</code> or <code>reverse()</code> with strings, we use <strong>Iterators</strong> instead of simple pointers.</p>
+                    <ul>
+                        <li><code>s.begin()</code>: Points to start.</li>
+                        <li><code>s.end()</code>: Points to <em>after</em> the last char.</li>
+                    </ul>
+                </div>
+                <div class="code-block"><pre><span class="keyword">string</span> s = <span class="string">"cba"</span>;
+
+<span class="comment">// Sort Alphabetically</span>
+sort(s.begin(), s.end());
+<span class="comment">// s becomes "abc"</span>
+
+<span class="comment">// Reverse String</span>
+reverse(s.begin(), s.end());
+<span class="comment">// s becomes "cba" again</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Conversions</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Number ↔ String</h3>
+                    <p>Very common in CP problems.</p>
+                    <ul>
+                        <li><code>to_string(num)</code>: Converts int/double to string.</li>
+                        <li><code>stoi(str)</code>: Converts string to integer.</li>
+                    </ul>
+                </div>
+                <div class="code-block"><pre><span class="keyword">int</span> x = <span class="number">123</span>;
+<span class="keyword">string</span> s = to_string(x);
+<span class="comment">// s is "123"</span>
+
+<span class="keyword">string</span> numStr = <span class="string">"50"</span>;
+<span class="keyword">int</span> y = stoi(numStr);
+<span class="comment">// y is 50</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Character Checks</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>&lt;cctype&gt; Library</h3>
+                    <p>Check or modify individual characters:</p>
+                    <ul>
+                        <li><code>isdigit(c)</code>: Is it 0-9?</li>
+                        <li><code>isalpha(c)</code>: Is it A-Z or a-z?</li>
+                        <li><code>toupper(c)</code>: Convert to Uppercase.</li>
+                        <li><code>tolower(c)</code>: Convert to Lowercase.</li>
+                    </ul>
+                </div>
+                <div class="code-block"><pre><span class="keyword">char</span> c = <span class="string">'a'</span>;
+
+<span class="keyword">if</span>(isalpha(c)) {
+    c = toupper(c);
+}
+<span class="comment">// c is now 'A'</span></pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Input Pitfalls</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>cin vs getline</h3>
+                    <p>Mixing <code>cin</code> and <code>getline</code> causes issues. <code>cin</code> leaves a newline in the buffer, which <code>getline</code> reads immediately.</p>
+                    <p><strong>Solution:</strong> Use <code>cin.ignore()</code>.</p>
+                </div>
+                <div class="code-block"><pre><span class="keyword">int</span> id;
+<span class="keyword">string</span> name;
+
+cin &gt;&gt; id;
+<span class="comment">// Ignore the newline left by cin</span>
+cin.ignore(); 
+
+getline(cin, name);</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide17">
+        <div class="content-area">
+            <div class="questions-intro-layout">
+                <i class="fa-solid fa-code"></i>
+                <h2>Problem Set</h2>
+                <p class="subtitle">8 Mini-ICPC Problems</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Problem A: Array Sum (Easy)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Given an array of 5 integers, calculate the total sum using a loop.</p>
+                    </div>
+                    <p><strong>Task:</strong> Read 5 numbers and print sum.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>10 20 30 40 50</div>
+                    <div class="io-box"><span class="io-label">Output</span>150</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Solution A</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="keyword">int</span> main() {
+    <span class="keyword">int</span> arr[<span class="number">5</span>], sum = <span class="number">0</span>;
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) {
+        cin &gt;&gt; arr[i];
+        sum += arr[i];
+    }
+    cout &lt;&lt; sum;
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Problem B: Append & Delete (Easy)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Take a word, remove the last character, then add 'X' to the end.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>pop_back()</code> and <code>push_back()</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>Hello</div>
+                    <div class="io-box"><span class="io-label">Output</span>HellX</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Solution B</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="keyword">int</span> main() {
+    <span class="keyword">string</span> s; cin &gt;&gt; s;
+    s.pop_back();
+    s.push_back(<span class="string">'X'</span>);
+    cout &lt;&lt; s;
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Problem C: Sorting (Easy)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Given 5 unsorted numbers, print them in ascending order.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>sort()</code> from <code>&lt;algorithm&gt;</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>5 1 4 2 8</div>
+                    <div class="io-box"><span class="io-label">Output</span>1 2 4 5 8</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Solution C</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> a[<span class="number">5</span>];
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cin &gt;&gt; a[i];
+    
+    sort(a, a+<span class="number">5</span>);
+    
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cout &lt;&lt; a[i] &lt;&lt; <span class="string">" "</span>;
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">Problem D: Flip It (Easy)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Reverse an array of 5 integers.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>reverse()</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>1 2 3 4 5</div>
+                    <div class="io-box"><span class="io-label">Output</span>5 4 3 2 1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title">Solution D</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> a[<span class="number">5</span>];
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cin &gt;&gt; a[i];
+    
+    reverse(a, a+<span class="number">5</span>);
+    
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cout &lt;&lt; a[i] &lt;&lt; <span class="string">" "</span>;
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">Problem E: The Champion (Medium)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Find the maximum value in an array.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>max_element()</code> and don't forget the pointer <code>*</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>10 50 5 99 20</div>
+                    <div class="io-box"><span class="io-label">Output</span>99</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Solution E</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> a[<span class="number">5</span>];
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cin &gt;&gt; a[i];
+    
+    cout &lt;&lt; *max_element(a, a+<span class="number">5</span>);
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Problem F: Counting (Medium)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Count how many times the number <strong>7</strong> appears in the array.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>count()</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>1 7 2 7 7</div>
+                    <div class="io-box"><span class="io-label">Output</span>3</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">Solution F</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> main() {
+    <span class="keyword">int</span> a[<span class="number">5</span>];
+    <span class="keyword">for</span>(<span class="keyword">int</span> i=0; i&lt;5; i++) cin &gt;&gt; a[i];
+    
+    cout &lt;&lt; count(a, a+<span class="number">5</span>, <span class="number">7</span>);
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide30">
+        <h2 class="slide-title">Problem G: Where is it? (Hard)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Find the starting position of "ICPC" inside a string.</p>
+                    </div>
+                    <p><strong>Task:</strong> Use <code>.find()</code>.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>HelloICPCWorld</div>
+                    <div class="io-box"><span class="io-label">Output</span>5</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide31">
+        <h2 class="slide-title">Solution G</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3></div>
+                <div class="code-block"><pre><span class="keyword">int</span> main() {
+    <span class="keyword">string</span> s; cin &gt;&gt; s;
+    cout &lt;&lt; s.find(<span class="string">"ICPC"</span>);
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Problem H: Palindrome Check (Hard)</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <div class="problem-box">
+                        <h4>Description</h4>
+                        <p>Check if a string reads the same forwards and backwards.</p>
+                    </div>
+                    <p><strong>Task:</strong> Create a reversed copy and compare.</p>
+                </div>
+                <div>
+                    <div class="io-box"><span class="io-label">Input</span>madam</div>
+                    <div class="io-box"><span class="io-label">Output</span>YES</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">Solution H</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div><h3>Code</h3><p>Leveraging <code>reverse()</code> logic.</p></div>
+                <div class="code-block"><pre><span class="library">#include &lt;algorithm&gt;</span>
+<span class="keyword">int</span> main() {
+    <span class="keyword">string</span> s; cin &gt;&gt; s;
+    <span class="keyword">string</span> rev = s;
+    
+    reverse(rev.begin(), rev.end());
+    
+    <span class="keyword">if</span>(s == rev) cout &lt;&lt; <span class="string">"YES"</span>;
+    <span class="keyword">else</span> cout &lt;&lt; <span class="string">"NO"</span>;
+}</pre></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-container" id="slide34">
+      <div class="content-area">
+        <div class="title-layout">
+            <h2>Good Luck!</h2>
+            <p class="subtitle">See you in the contest</p>
+            <div style="margin-top: 30px;">
+                <p>Thebes ICPC Community</p>
+            </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+
+<div id="nav-controls">
+    <button id="prev-btn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+    <span id="slide-counter"></span>
+    <button id="next-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const slideCounter = document.getElementById('slide-counter');
+    const bodyEl = document.body;
+    const desktopBtn = document.getElementById('desktop-view-btn');
+    const mobileBtn = document.getElementById('mobile-view-btn');
+
+    desktopBtn.addEventListener('click', () => { bodyEl.classList.remove('mobile-view'); desktopBtn.classList.add('active'); mobileBtn.classList.remove('active'); });
+    mobileBtn.addEventListener('click', () => { bodyEl.classList.add('mobile-view'); mobileBtn.classList.add('active'); desktopBtn.classList.remove('active'); });
+
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        slides.forEach(s => s.classList.remove('active'));
+        if (slides[index]) { slides[index].classList.add('active'); currentSlide = index; }
+        slideCounter.textContent = `${index + 1} / ${totalSlides}`;
+        prevBtn.disabled = (index === 0);
+        nextBtn.disabled = (index === totalSlides - 1);
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1); });
+    nextBtn.addEventListener('click', () => { if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') nextBtn.click(); if (e.key === 'ArrowLeft') prevBtn.click(); });
+
+    showSlide(0);
+});
+</script>
+
+</body>
+</html>
